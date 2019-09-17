@@ -37,8 +37,6 @@ function* getCurrencies(): SagaIterator {
 }
 
 export function* watchCurrencies() {
-    // while (true) {
     yield take(FETCH_CURRENCIES);
     yield call(getCurrencies);
-    // }
 }
