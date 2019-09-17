@@ -1,0 +1,38 @@
+/*------------------------------------*\
+    $RETINA IMAGE MIXIN
+\*------------------------------------*/
+
+/**
+ * Retina image media query. I use this one a lot!
+ * Quite simply it sets a retina quality image with a
+ * standard quality fallback. e.g.
+ * Now quite often the retina image is going to be larger than the
+ * standard quality, if you're using a png for example (the 30/70 quality technique
+ * for jpgs often results in two images of similar size), so it may be a good idea to detect
+ * retina with a media query so there's a switch for this e.g.:
+ * Handy to have the option to reduce the number of media queries.
+ */
+@mixin image-2x($image-2x,
+        $fallback,
+		$detect-retina: false) {
+
+    @if $detect-retina {
+        background: $fallback;
+
+        @media
+        only screen and (-webkit-min-device-pixel-ratio: 2),
+        only screen and (   min--moz-device-pixel-ratio: 2),
+        only screen and (     -o-min-device-pixel-ratio: 2/1),
+        only screen and (        min-device-pixel-ratio: 2),
+        only screen and (                min-resolution: 192dpi),
+        only screen and (                min-resolution: 2dppx) {
+            background: $image-2x;
+        }
+    } @else {
+        background: $image-2x;
+
+        .no-backgroundsize & {
+            background-image: $fallback;
+        }
+    }
+}

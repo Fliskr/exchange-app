@@ -1,0 +1,41 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./",
+    "paths": {
+      "@ui/*": ["src/js/ui/*"],
+      "@reducers/*": ["src/js/store/reducers/*"],
+      "@actions/*": ["src/js/store/actions/*"],
+      "@api/*": ["src/js/store/api/*"],
+      "@interfaces/*": ["src/js/interfaces/*"],
+      "@store/*": ["src/js/store/*"],
+      "@saga/*": ["src/js/store/sagas/*"],
+      "@helpers/*": ["src/js/helpers/*"],
+      "@decorators/*": ["src/js/decorators/*"],
+      "@loaders/*": ["src/js/loaders/*"],
+      "@locales/*":["src/locales/*"],
+      "@images/*":["src/images/*"],
+      "@app/*":["src/js/*"],
+      "@fonts/*":["src/fonts"]
+    },
+    "lib": ["dom", "esnext"],
+    "jsx": "react",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "noEmitOnError": false,
+    "downlevelIteration": true,
+    "noEmit": true,
+    "pretty": true,
+    "noImplicitAny": true,
+    "preserveConstEnums": true,
+    "removeComments": false,
+    "suppressImplicitAnyIndexErrors": true,
+    "target": "es5",
+    "experimentalDecorators": true
+  },
+  "exclude": ["node_modules"]
+}
