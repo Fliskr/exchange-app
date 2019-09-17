@@ -9,7 +9,7 @@
       "@ui/*": ["src/js/ui/*"],
       "@reducers/*": ["src/js/store/reducers/*"],
       "@actions/*": ["src/js/store/actions/*"],
-      "@api/*": ["src/js/store/api/*"],
+      "@api/*": ["src/js/api/*"],
       "@interfaces/*": ["src/js/interfaces/*"],
       "@store/*": ["src/js/store/*"],
       "@saga/*": ["src/js/store/sagas/*"],
