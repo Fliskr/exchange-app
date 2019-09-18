@@ -11,14 +11,14 @@ import Row from "react-bootstrap/es/Row";
 
 const NarrowCarousel = styled(Carousel)`
     width: 300px;
-    margin: 0 auto;
+    margin: 24px auto;
 `;
 
 const ExchangeLink = styled(Link)`
     color:#fff;
     font-size: 18px;
     text-decoration: none;
-    margin: 12px auto;
+    margin: 24px auto;
     :hover{
         text-decoration: none;
     }
@@ -30,7 +30,8 @@ const CarouselItem = styled(Carousel.Item)`
 
 const Indicators = styled.div`
     position: relative;
-    padding: 12px 0;
+    padding: 32px 0 12px;
+    border-bottom: 1px solid #fff;
     ul{
         position: absolute;
         right: 0;
@@ -46,7 +47,8 @@ const Indicators = styled.div`
     }
     li {
         margin: 0 12px;
-        padding: 4px;
+        padding: 8px;
+        font-size: 24px;
         color:#fff;
         cursor: pointer;
         :hover{
@@ -67,11 +69,11 @@ const Main = () => {
 
     return (
         <Container>
-            <NarrowCarousel activeIndex={index} onSelect={handleSelect} controls={false} indicators={false} interval={null}>
+            <NarrowCarousel activeIndex={index} onSelect={handleSelect} controls={false} indicators={false} interval={null} delay={100}>
                 {Object.entries(balance).map(([key, value]) => (
                     <CarouselItem key={key} onClick={() => setCurrency(key)}>
                         <Carousel.Caption>
-                            <Icon name={key} size={48}/>
+                            <Icon name={key} size={60}/>
                             <div>Your balance: {value}</div>
                         </Carousel.Caption>
                     </CarouselItem>

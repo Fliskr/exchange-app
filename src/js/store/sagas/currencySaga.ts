@@ -1,27 +1,33 @@
-import {take, takeEvery, put, call} from "redux-saga/effects";
-import {SagaIterator} from "redux-saga";
+import { take, takeEvery, put, call, delay } from "redux-saga/effects";
+import { SagaIterator } from "redux-saga";
 
-import delay from "@helpers/delay";
-import {UPDATE_CURRENCIES, FETCH_CURRENCIES} from "@actions/currency";
-import pick from "@helpers/pick";
+// import delay from "@helpers/delay";
+import {
+    UPDATE_CURRENCIES,
+    FETCH_CURRENCIES,
+    UPDATE_CURRENCIES_FAILED,
+    UPDATE_CURRENCIES_SUCCESS
+} from "@actions/currency";
 import getLatestRates from "../../api/getLatestRates";
+import { BASE_CURRENCY } from "@helpers/constants";
 
 function* getCurrencies(): SagaIterator {
     while (true) {
         try {
+            yield put({ type: UPDATE_CURRENCIES });
             const data = yield call(getLatestRates);
-            let {rates, timestamp} = data;
-            rates = pick(rates, ["USD", "EUR", "GBP"]);
-            rates.USD = 1;
+            let { rates, timestamp } = data;
+            rates[BASE_CURRENCY] = 1;
             yield put({
-                type: UPDATE_CURRENCIES,
-                payload: {rates, timestamp: new Date(timestamp).getTime()}
+                type: UPDATE_CURRENCIES_SUCCESS,
+                payload: { rates, timestamp: new Date(timestamp).getTime() }
             });
         } catch (e) {
-
+            yield put({
+                type: UPDATE_CURRENCIES_FAILED
+            });
         } finally {
-            yield call(delay, 10000);
-
+            yield delay(10000);
         }
     }
 }

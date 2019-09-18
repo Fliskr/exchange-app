@@ -1,4 +1,4 @@
-import { take, takeEvery, put, call, select } from "redux-saga/effects";
+import { takeLeading, takeEvery, put, call, select, takeLatest} from "redux-saga/effects";
 import { SagaIterator } from "redux-saga";
 import {
   EXCHANGE_FROM_TO,
@@ -6,9 +6,10 @@ import {
   UPDATE_WALLET_HISTORY
 } from "@actions/wallet";
 import { AnyAction } from "redux";
+import { Wallet } from "@interfaces/AppStore";
 
 function* changeCurrency({ payload }: AnyAction): SagaIterator {
-  const balance = yield select(state => state.wallet.balance);
+  const balance: Wallet["balance"] = yield select(state => state.wallet.balance);
   Object.entries(payload).forEach(([key, value]) => {
     balance[key] = parseFloat((balance[key] + value).toFixed(2));
   });
@@ -20,5 +21,5 @@ function* changeCurrency({ payload }: AnyAction): SagaIterator {
 }
 
 export function* watchWallet() {
-  yield takeEvery(EXCHANGE_FROM_TO, changeCurrency);
+    yield takeLeading(EXCHANGE_FROM_TO, changeCurrency);
 }
