@@ -1,4 +1,5 @@
 import "../scss/style.scss";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "@babel/polyfill";
 import "whatwg-fetch";
 import "abortcontroller-polyfill/dist/polyfill-patch-fetch";

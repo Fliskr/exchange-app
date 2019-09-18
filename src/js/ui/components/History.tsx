@@ -4,12 +4,12 @@ import { Wallet } from "@interfaces/AppStore";
 import { useSelector } from "react-redux";
 import AppStore from "@interfaces/AppStore";
 import moment from "moment";
-import { TOP_LAYOUT_HEIGHT } from "@helpers/constants";
+import Container from "react-bootstrap/es/Container";
 
-const Layout = styled.div`
-    background: linear-gradient(to bottom, #66f, #88f);
-    border-top: 1px solid #fff;
-    min-height: calc(100vh - ${TOP_LAYOUT_HEIGHT});
+const Layout = styled(Container)`
+    background: rgba(0,0,0,0.5);
+    max-height: 400px;
+    overflow: auto;
 `;
 
 const HistoryRow = styled.div`

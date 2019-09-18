@@ -1,111 +1,98 @@
-import React, {useEffect, useState} from "react";
-import AppStore, {Currencies, Wallet} from "@interfaces/AppStore";
+import React, {useState} from "react";
+import AppStore from "@interfaces/AppStore";
 import {useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 import styled from "styled-components";
 import History from "@ui/components/History";
-import {TOP_LAYOUT_HEIGHT} from "@helpers/constants";
+import Container from "react-bootstrap/es/Container";
+import Icon from "@ui/components/Icon";
+import Carousel from "react-bootstrap/es/Carousel";
+import Row from "react-bootstrap/es/Row";
 
-const Layout = styled.div`
-    display: flex;
-    flex-direction: column;
-    background: linear-gradient(to top,#66f, #88f);
-    height: ${TOP_LAYOUT_HEIGHT};
-    position: relative;
-`;
-
-const Wrapper = styled.div`
-    width:400px;
-    margin: 20px auto;
-    display: flex;
-    justify-content: space-between;
-    height: 100%;
-`;
-
-const CurrencyLabel = styled.div`
-    text-decoration: none;
-    margin: 0 4px;
+const NarrowCarousel = styled(Carousel)`
+    width: 300px;
+    margin: 0 auto;
 `;
 
 const ExchangeLink = styled(Link)`
-    position: absolute;
-    bottom: 20px;
+    color:#fff;
     font-size: 18px;
     text-decoration: none;
-    &:visited {
-    color: #fff;
-    }
+    margin: 12px auto;
     :hover{
-        color: #62f;
+        text-decoration: none;
     }
-    transform: translateX(190px);
 `;
 
-const Row = styled.div < {active: boolean} > `
-    margin: 0 12px;
-    color: #fff;
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-    flex: 0 1 100px;
-    height: 100px;
-    cursor: pointer;
-    transition: color 0.2s ease-in;
-    :hover{
-        color: #62f;
+const CarouselItem = styled(Carousel.Item)`
+    height: 140px;
+`;
+
+const Indicators = styled.div`
+    position: relative;
+    padding: 12px 0;
+    ul{
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 15;
+        display: flex;
+        justify-content: center;
+        padding-left: 0;
+        margin-right: 15%;
+        margin-left: 15%;
+        list-style: none;
     }
-    ${({active}) => active ? `
-        position:absolute;
-        bottom: 80px;
-        font-size: 40px;
-        transform: translateX(150px);
-        :hover {
-            color: #fff;
-            cursor: initial;
+    li {
+        margin: 0 12px;
+        padding: 4px;
+        color:#fff;
+        cursor: pointer;
+        :hover{
+            color: #f39c12;
         }
-    `
-    : ""}
-`;
-
-const Amount = styled.div`
-    display: inline;
-    font-size: 14px;
-    line-height: 18px;
-    span{
-    font-size: 18px;
     }
 `;
 
 const Main = () => {
     const [currency, setCurrency] = useState("USD");
-    const {balance} = useSelector<AppStore,
-        Pick<Wallet, "balance" | "history"> & Pick<Currencies, "rates" | "timestamp">>
-    (({currencies: {rates = {}, timestamp}, wallet: {history, balance}}) => ({rates, timestamp, history, balance}));
+    const balance = useSelector<AppStore, AppStore["wallet"]["balance"]>(({wallet: {balance}}) => balance);
+    const [index, setIndex] = useState(0);
+
+    const handleSelect = (selectedIndex: number) => {
+        setIndex(selectedIndex);
+        setCurrency(Object.keys(balance)[selectedIndex])
+    };
 
     return (
-        <>
-            <Layout>
-                <Wrapper>
-                    {Object.entries(balance).map(([key, value]) => (
-                        <Row key={key} onClick={() => setCurrency(key)} active={currency === key}>
-                            <CurrencyLabel>
-                                <i className={`icon-${key}`}/>
-                            </CurrencyLabel>
-                            {value.toString().split(".").map((item, index) => index
-                                ? <Amount key={index}>
-                                    {item}
-                                </Amount> :
-                                <Amount><span key={index}>{item}.</span></Amount>)}
-                        </Row>
-                    ))}
-                    <ExchangeLink to={`/exchange/${currency}`}><i className="icon-exchange"/></ExchangeLink>
-                </Wrapper>
-            </Layout>
+        <Container>
+            <NarrowCarousel activeIndex={index} onSelect={handleSelect} controls={false} indicators={false} interval={null}>
+                {Object.entries(balance).map(([key, value]) => (
+                    <CarouselItem key={key} onClick={() => setCurrency(key)}>
+                        <Carousel.Caption>
+                            <Icon name={key} size={48}/>
+                            <div>Your balance: {value}</div>
+                        </Carousel.Caption>
+                    </CarouselItem>
+                ))}
+            </NarrowCarousel>
+            <Indicators>
+                <ul>
+                    {Object.keys(balance).map((key, index) => <li onClick={() => handleSelect(index)} key={key}
+                                                                  data-slide-to={index}>
+                        <Icon name={key}/>
+                    </li>)}
+                </ul>
+            </Indicators>
+            <Row>
+                <ExchangeLink to={`/exchange/${currency}`}>
+                    Exchange {currency} <Icon name="exchange" size={24}/>
+                </ExchangeLink>
+            </Row>
             <History currencyFrom={currency}/>
-        </>
+        </Container>
     );
 };
 
 export default Main;
-
-// 120a86af69014440917c26bcc5da3d4d

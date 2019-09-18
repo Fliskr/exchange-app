@@ -13,6 +13,7 @@ const init: Partial<AppStore["wallet"]> = {
 
 const wallet: Reducer = (state = init, action) => {
     if (action.type === UPDATE_WALLET) {
+        console.log(1);
         return {...state, balance: action.payload};
     }
     if (action.type === UPDATE_WALLET_HISTORY) {

@@ -8,14 +8,12 @@ import AppStore, {Wallet, Currencies} from "@interfaces/AppStore";
 import {Link, RouteComponentProps} from "react-router-dom";
 import Select from "@ui/components/Select";
 import History from "@ui/components/History";
-import {TOP_LAYOUT_HEIGHT} from "@helpers/constants";
+import Container from "react-bootstrap/es/Container";
 
 const Layout = styled.div`
     display: flex;
     flex-direction: column;
-    background: linear-gradient(to top,#66f, #88f);
     padding: 24px;
-    height: ${TOP_LAYOUT_HEIGHT};
 `;
 
 const Form = styled.form`
@@ -75,21 +73,6 @@ const Row = styled.div`
     }
 `;
 
-const Back = styled(Link)`
-    transition: all 0.2s ease-in;
-    height: 20px;
-    color: #fff;
-            text-decoration: none;
-    &:hover {
-        font-size: 18px;
-         color: #aaa;
-    }
-    &:visited {
-        text-decoration: none;
-        color: #fff;;
-    }
-`;
-
 const generateInitialValues = (currency: string) => ({
     CurrencyFrom: currency.toUpperCase(),
     CurrencyTo: currency.toUpperCase(),
@@ -140,9 +123,8 @@ const Exchange = ({
         return errors;
     };
     return (
-        <>
+        <Container>
             <Layout>
-                <Back to="/"><i className="icon-home"/></Back>
                 <Formik
                     ref={formik}
                     initialValues={generateInitialValues(currency)}
@@ -197,7 +179,7 @@ const Exchange = ({
 
             </Layout>
             <History currencyFrom={currencyFrom}/>
-        </>
+        </Container>
     );
 };
 
