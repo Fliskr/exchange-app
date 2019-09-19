@@ -10,12 +10,13 @@ import {
 } from "@actions/currency";
 import getLatestRates from "../../api/getLatestRates";
 import { BASE_CURRENCY } from "@helpers/constants";
+import IRates from "@interfaces/IRates";
 
 function* getCurrencies(): SagaIterator {
     while (true) {
         try {
             yield put({ type: UPDATE_CURRENCIES });
-            const data = yield call(getLatestRates);
+            const data: IRates = yield call(getLatestRates);
             let { rates, timestamp } = data;
             rates[BASE_CURRENCY] = 1;
             yield put({

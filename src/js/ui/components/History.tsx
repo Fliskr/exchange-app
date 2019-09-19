@@ -12,14 +12,17 @@ const Layout = styled(Container)`
     overflow: auto;
     border: 1px solid #fff;
     box-shadow: 0 0 6px 3px #fff;
-    `;
-    
-    const HistoryTitle = styled.h2`
+    &::-webkit-scrollbar {
+        width: 0px;
+    }
+`;
+
+const HistoryTitle = styled.h2`
     margin: 12px auto;
     font-weight: 400;
-    color:#fff;
+    color: #fff;
     display: flex;
-    justify-content: center;;
+    justify-content: center;
 `;
 
 const HistoryItem = styled.div`
@@ -37,7 +40,7 @@ const HistoryChanges = styled.span<{ positive: boolean }>`
     color: ${({ positive = true }) => (positive ? "#844" : "#288")};
     margin: 0 12px;
     width: 40%;
-    `;
+`;
 
 const HistoryDate = styled.div`
     font-size: 18px;
@@ -64,7 +67,8 @@ const History = ({ currencyFrom }: Props) => {
                         </HistoryDate>
                         {Object.entries(item.changes).map(([key, value]) => (
                             <HistoryChanges positive={value > 0} key={key}>
-                               {key}  {parseFloat(value).toFixed(2)} <i className={`icon-${key}`} />
+                                {key} {parseFloat(value).toFixed(2)}{" "}
+                                <i className={`icon-${key}`} />
                             </HistoryChanges>
                         ))}
                     </HistoryItem>
