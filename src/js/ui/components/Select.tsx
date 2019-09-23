@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import { Field, FieldProps } from "formik";
 import styled from "styled-components";
 import { useSelect, UseSelectInterface } from "downshift";
+import Icon from "./Icon";
 
 interface Props {
     items: string[];
@@ -79,7 +80,7 @@ const DropdownSelect: FC<Props> = ({
                                     key={`${option}${index}`}
                                     {...getItemProps({ item: option, index })}
                                 >
-                                    <i className={`icon-${option}`} />
+                                    <Icon name={option} /> {option}
                                 </li>
                             ))}
                     </ul>

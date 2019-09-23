@@ -4,25 +4,47 @@ import { Wallet } from "@interfaces/AppStore";
 import { useSelector } from "react-redux";
 import AppStore from "@interfaces/AppStore";
 import moment from "moment";
-import { TOP_LAYOUT_HEIGHT } from "@helpers/constants";
+import Container from "react-bootstrap/es/Container";
 
-const Layout = styled.div`
-    background: linear-gradient(to bottom, #66f, #88f);
-    border-top: 1px solid #fff;
-    min-height: calc(100vh - ${TOP_LAYOUT_HEIGHT});
+const Layout = styled(Container)`
+    background: rgba(0, 0, 0, 0.5);
+    height: 300px;
+    overflow: auto;
+    border: 1px solid #fff;
+    box-shadow: 0 0 6px 3px #fff;
+    &::-webkit-scrollbar {
+        width: 0px;
+    }
 `;
 
-const HistoryRow = styled.div`
+const HistoryTitle = styled.h2`
+    margin: 12px auto;
+    font-weight: 400;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+`;
+
+const HistoryItem = styled.div`
     color: #fff;
     margin: 12px auto;
     width: 400px;
+    display: flex;
+    flex-direction: column;
     :not(:first-of-type) {
         border-top: 1px solid lightblue;
     }
 `;
 
-const HistoryChanges = styled.div<{ positive: boolean }>`
-    color: ${({ positive = true }) => (positive ? "#0eff70" : "#ff2d28")};
+const HistoryChanges = styled.span<{ positive: boolean }>`
+    color: ${({ positive = true }) => (positive ? "#844" : "#288")};
+    margin: 0 12px;
+    width: 40%;
+`;
+
+const HistoryDate = styled.div`
+    font-size: 18px;
+    margin: 0 auto;
 `;
 
 interface Props {
@@ -35,21 +57,21 @@ const History = ({ currencyFrom }: Props) => {
     );
     return (
         <Layout>
+            <HistoryTitle>CHANGES HISTORY</HistoryTitle>
             {history
                 .filter(item => item.changes[currencyFrom])
-                .map(item => (
-                    <HistoryRow key={item.datetime}>
-                        <div>
-                            {moment(item.datetime).format(
-                                "MMM dddd YYYY hh:mm:ss "
-                            )}
-                        </div>
+                .map((item, index) => (
+                    <HistoryItem key={index}>
+                        <HistoryDate>
+                            {moment(item.datetime).format("DD MMMM YYYY")}
+                        </HistoryDate>
                         {Object.entries(item.changes).map(([key, value]) => (
                             <HistoryChanges positive={value > 0} key={key}>
-                                <i className={`icon-${key}`} /> {value}
+                                {key} {parseFloat(value).toFixed(2)}{" "}
+                                <i className={`icon-${key}`} />
                             </HistoryChanges>
                         ))}
-                    </HistoryRow>
+                    </HistoryItem>
                 ))}
         </Layout>
     );

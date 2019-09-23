@@ -1,21 +1,32 @@
-import React, {useRef} from "react";
+import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
 import NumberInput from "@ui/components/NumberInput";
-import {Formik, FormikValues, FormikErrors} from "formik";
-import {useDispatch, useSelector} from "react-redux";
-import {EXCHANGE_FROM_TO} from "@actions/wallet";
-import AppStore, {Wallet, Currencies} from "@interfaces/AppStore";
-import {Link, RouteComponentProps} from "react-router-dom";
+import { Formik, FormikValues, FormikErrors } from "formik";
+import { useDispatch, useSelector } from "react-redux";
+import { EXCHANGE_FROM_TO } from "@actions/wallet";
+import AppStore, { Wallet, Currencies } from "@interfaces/AppStore";
+import { RouteComponentProps } from "react-router-dom";
 import Select from "@ui/components/Select";
 import History from "@ui/components/History";
-import {TOP_LAYOUT_HEIGHT} from "@helpers/constants";
+import Container from "react-bootstrap/es/Container";
+import Icon from "@ui/components/Icon";
+import Alert from "react-bootstrap/es/Alert";
+import { BASE_CURRENCY } from "@helpers/constants";
+import Rated from "@ui/components/Rate";
 
-const Layout = styled.div`
+const Rate = styled(Rated)`
+    width: 200px;
+`;
+
+const Layout = styled(Container)`
     display: flex;
     flex-direction: column;
-    background: linear-gradient(to top,#66f, #88f);
-    padding: 24px;
-    height: ${TOP_LAYOUT_HEIGHT};
+    padding: 24px 0;
+`;
+
+const SToast = styled(Alert)`
+    position: absolute;
+    right: 20px;
 `;
 
 const Form = styled.form`
@@ -24,14 +35,13 @@ const Form = styled.form`
 `;
 
 const ExchangeInput = styled(NumberInput)`
-    padding: 12px;
     font-size: 24px;
     font-weight: 400;
 `;
 
 const Sub = styled.sub`
     position: absolute;
-    bottom: -10px;
+    bottom: -20px;
     color: #fff;
     width: 200px;
     i {
@@ -41,15 +51,25 @@ const Sub = styled.sub`
 
 const Submit = styled.button`
     border-radius: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     border: none;
-    color: #1ac039;
-    padding: 12px;
+    color: #fff;
+    padding: 24px 38px;
     cursor: pointer;
-    outline: none;
     font-size: 18px;
     font-weight: 400;
-    margin: 12px auto;
+    margin: 24px auto;
     background: transparent;
+    border-top: 1px solid #fff;
+    i {
+        margin-left: 4px;
+    }
+    :hover {
+        outline: none;
+        color: #f39c12;
+    }
     &:disabled {
         color: lightgray;
         cursor: initial;
@@ -59,40 +79,14 @@ const Submit = styled.button`
 const Row = styled.div`
     display: flex;
     flex-direction: row;
-    align-items: flex-start;
-    margin: 10px auto;
-    div:first-of-type {
-        flex: 0 1 200px;
-        min-width: 100px;
-        height: 60px;
-    }
-    div:last-of-type {
-        height: 60px;
-        padding: 0;
-        input {
-            padding: 0;
-        }
-    }
-`;
-
-const Back = styled(Link)`
-    transition: all 0.2s ease-in;
-    height: 20px;
-    color: #fff;
-            text-decoration: none;
-    &:hover {
-        font-size: 18px;
-         color: #aaa;
-    }
-    &:visited {
-        text-decoration: none;
-        color: #fff;;
-    }
+    align-items: center;
+    justify-content: center;
+    margin: 20px auto;
 `;
 
 const generateInitialValues = (currency: string) => ({
     CurrencyFrom: currency.toUpperCase(),
-    CurrencyTo: currency.toUpperCase(),
+    CurrencyTo: BASE_CURRENCY,
     CurrencyFromValue: "1.00",
     CurrencyToValue: "1.00"
 });
@@ -103,101 +97,141 @@ interface TParams {
 
 const Exchange = ({
     match: {
-        params: {currency}
+        params: { currency }
     }
 }: RouteComponentProps<TParams>) => {
     const dispatch = useDispatch();
-    const {balance, rates} = useSelector<AppStore,
-        Pick<Wallet, "balance"> & Pick<Currencies, "rates">>(({wallet: {balance}, currencies: {rates = {}}}) => ({
+    const [show, setShow] = useState(false);
+    const [error, setError] = useState("");
+    const { balance, rates } = useSelector<
+        AppStore,
+        Pick<Wallet, "balance"> & Pick<Currencies, "rates">
+    >(({ wallet: { balance }, currencies: { rates = {} } }) => ({
         balance,
-        rates,
+        rates
     }));
     const formik = useRef(null);
-    const currencyFrom = formik.current ? formik.current.state.values.CurrencyFrom : currency;
+    const currencyFrom = formik.current
+        ? formik.current.state.values.CurrencyFrom
+        : currency;
     const onSubmit = (values: FormikValues) => {
-
-        const {
-            CurrencyFrom,
-            CurrencyTo,
-            CurrencyFromValue
-        } = values;
+        const { CurrencyFrom, CurrencyTo, CurrencyFromValue } = values;
+        setShow(false);
+        setError("");
+        if (CurrencyFromValue > balance[currencyFrom]) {
+            setShow(true);
+            setError("Amount cannot be less than amount in your wallet");
+            return;
+        }
         dispatch({
             type: EXCHANGE_FROM_TO,
             payload: {
                 [CurrencyFrom]: -parseFloat(CurrencyFromValue),
-                [CurrencyTo]:
-                (CurrencyFromValue * rates[CurrencyTo]) / rates[CurrencyFrom]
+                [CurrencyTo]: parseFloat(
+                    (
+                        (CurrencyFromValue * rates[CurrencyTo]) /
+                        rates[CurrencyFrom]
+                    ).toFixed(2)
+                )
             }
         });
     };
 
     const validate = (values: FormikValues) => {
         const errors: FormikErrors<FormikValues> = {};
-        if (values.CurrencyFromValue > balance[values.CurrencyFrom]) {
-            errors.CurrencyFromValue =
-                "Amount cannot be less than amount in your wallet";
-        }
         return errors;
     };
     return (
-        <>
-            <Layout>
-                <Back to="/"><i className="icon-home"/></Back>
-                <Formik
-                    ref={formik}
-                    initialValues={generateInitialValues(currency)}
-                    validate={validate}
-                    onSubmit={(values: FormikValues) => onSubmit(values)}
-                    validateOnBlur={true}
-                >
-                    {({handleSubmit, values, setFieldValue}) => (
-                        <Form onSubmit={handleSubmit}>
-                            {rates && (
-                                <>
-                                    <Row>
-                                        <Select
-                                            setFieldValue={setFieldValue}
-                                            name="CurrencyFrom"
-                                            items={Object.keys(rates)}>
-                                            <Sub>
-                                                You have: {balance[values.CurrencyFrom]}
-                                                <i className={`icon-${values.CurrencyFrom}`}/>
-                                            </Sub>
-
-                                        </Select>
-                                        <ExchangeInput name="CurrencyFromValue"/>
-                                    </Row>
-                                    <Row>
-                                        <Select
-                                            setFieldValue={setFieldValue}
-                                            name="CurrencyTo"
-                                            items={Object.keys(rates)}>
-                                            <Sub>
-                                                You have: {balance[values.CurrencyTo]}
-                                                <i className={`icon-${values.CurrencyTo}`}/>
-                                            </Sub>
-                                        </Select>
-                                        <ExchangeInput
-                                            value={(
-                                                (values.CurrencyFromValue * rates[values.CurrencyTo]) /
+        <Layout>
+            <Formik
+                ref={formik}
+                initialValues={generateInitialValues(currency)}
+                validate={validate}
+                onSubmit={(values: FormikValues) => onSubmit(values)}
+                validateOnBlur={true}
+            >
+                {({ handleSubmit, values, setFieldValue }) => (
+                    <Form onSubmit={handleSubmit}>
+                        {rates && (
+                            <>
+                                <Row>
+                                    <Select
+                                        setFieldValue={setFieldValue}
+                                        name="CurrencyFrom"
+                                        items={Object.keys(rates)}
+                                    >
+                                        <Sub>
+                                            You have:{" "}
+                                            {balance[values.CurrencyFrom]}
+                                            <i
+                                                className={`icon-${values.CurrencyFrom}`}
+                                            />
+                                        </Sub>
+                                        <Rate
+                                            from={values.CurrencyFrom}
+                                            to={values.CurrencyTo}
+                                            rateFrom={
                                                 rates[values.CurrencyFrom]
-                                            ).toFixed(2)}
-                                            disabled={true}
-                                            name="CurrencyToValue"
+                                            }
+                                            rateTo={rates[values.CurrencyTo]}
                                         />
-                                    </Row>
-                                    <Submit type="submit" disabled={values.CurrencyFrom === values.CurrencyTo}><i
-                                        className="icon-exchange"/></Submit>
-
-                                </>
-                            )}
-                        </Form>
-                    )}
-                </Formik>
-
-            </Layout>
-            <History currencyFrom={currencyFrom}/>
-        </>
+                                    </Select>
+                                    <ExchangeInput name="CurrencyFromValue" />
+                                </Row>
+                                <Row>
+                                    <Select
+                                        setFieldValue={setFieldValue}
+                                        name="CurrencyTo"
+                                        items={Object.keys(rates)}
+                                    >
+                                        <Sub>
+                                            You have:{" "}
+                                            {balance[values.CurrencyTo]}
+                                            <i
+                                                className={`icon-${values.CurrencyTo}`}
+                                            />
+                                        </Sub>
+                                        <Rate
+                                            from={values.CurrencyTo}
+                                            rateFrom={rates[values.CurrencyTo]}
+                                            rateTo={rates[values.CurrencyFrom]}
+                                            to={values.CurrencyFrom}
+                                        />
+                                    </Select>
+                                    <ExchangeInput
+                                        value={(
+                                            (values.CurrencyFromValue *
+                                                rates[values.CurrencyTo]) /
+                                            rates[values.CurrencyFrom]
+                                        ).toFixed(2)}
+                                        disabled={true}
+                                        name="CurrencyToValue"
+                                    />
+                                </Row>
+                                <Submit
+                                    type="submit"
+                                    disabled={
+                                        values.CurrencyFrom ===
+                                        values.CurrencyTo
+                                    }
+                                >
+                                    Exchange <Icon name="exchange" />
+                                </Submit>
+                            </>
+                        )}
+                    </Form>
+                )}
+            </Formik>
+            <SToast
+                show={show}
+                variant="danger"
+                onClose={() => setShow(false)}
+                dismissible
+            >
+                {error}
+            </SToast>
+            <History currencyFrom={currencyFrom} />
+        </Layout>
     );
 };
 

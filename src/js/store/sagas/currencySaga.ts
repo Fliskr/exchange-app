@@ -1,37 +1,34 @@
-import { take, takeEvery, put, call } from "redux-saga/effects";
+import { take, takeEvery, put, call, delay } from "redux-saga/effects";
 import { SagaIterator } from "redux-saga";
 
-import delay from "@helpers/delay";
-import { UPDATE_CURRENCIES, FETCH_CURRENCIES } from "@actions/currency";
-import pick from "@helpers/pick";
+// import delay from "@helpers/delay";
+import {
+    UPDATE_CURRENCIES,
+    FETCH_CURRENCIES,
+    UPDATE_CURRENCIES_FAILED,
+    UPDATE_CURRENCIES_SUCCESS
+} from "@actions/currency";
 import getLatestRates from "../../api/getLatestRates";
+import { BASE_CURRENCY } from "@helpers/constants";
+import IRates from "@interfaces/IRates";
 
 function* getCurrencies(): SagaIterator {
     while (true) {
         try {
-            const data = yield call(getLatestRates);
+            yield put({ type: UPDATE_CURRENCIES });
+            const data: IRates = yield call(getLatestRates);
             let { rates, timestamp } = data;
-            rates = Object.entries(pick(rates, ["USD", "EUR", "GBP"]));
+            rates[BASE_CURRENCY] = 1;
             yield put({
-                type: UPDATE_CURRENCIES,
-                payload: { rates, timestamp }
+                type: UPDATE_CURRENCIES_SUCCESS,
+                payload: { rates, timestamp: new Date(timestamp).getTime() }
             });
-            yield call(delay, 10000);
         } catch (e) {
-            // instead of mock data there should be error handling
-            const { rates, timestamp } = {
-                timestamp: new Date().getTime(),
-                rates: {
-                    USD: 1,
-                    GBP: 0.8 + Math.random() * 0.1,
-                    EUR: 0.8 + Math.random() * 0.1
-                }
-            };
             yield put({
-                type: UPDATE_CURRENCIES,
-                payload: { rates, timestamp }
+                type: UPDATE_CURRENCIES_FAILED
             });
-            yield call(delay, 10000);
+        } finally {
+            yield delay(10000);
         }
     }
 }

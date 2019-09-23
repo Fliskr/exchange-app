@@ -9,7 +9,8 @@ import sagas from "@saga/index";
 import {Route} from "react-router";
 import Main from "@ui/pages/Main";
 import Exchange from "@ui/pages/Exchange";
-import MainLayout from "@ui/components/MainLayout";
+import {FETCH_CURRENCIES} from "@actions/currency";
+import Header from "@ui/components/Header";
 
 export const store: Store<AppStore> = configureStore(createReducer(history));
 export const action = (type: string) => store.dispatch({type});
@@ -25,15 +26,16 @@ if (module.hot) {
         });
     });
 }
-
+store.dispatch({type: FETCH_CURRENCIES});
 const App: FunctionComponent = () => (
     <StrictMode>
         <Provider store={store}>
             <ConnectedRouter history={history}>
-                <MainLayout>
+                <>
+                    <Header/>
                     <Route path="/" exact={true} component={Main}/>
                     <Route path="/exchange/:currency" exact={true} component={Exchange}/>
-                </MainLayout>
+                </>
             </ConnectedRouter>
         </Provider>
     </StrictMode>

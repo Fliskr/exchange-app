@@ -1,18 +1,15 @@
-import { SECRET_KEY } from "@helpers/constants";
+import { BASE_CURRENCY } from "@helpers/constants";
 
 export default async function() {
     const req = await fetch(
-        `https://openexchangerates.org/api/latest.json?app_id=${SECRET_KEY}`,
+        `https://api.ratesapi.io/api/latest?base=${BASE_CURRENCY}&symbols=GBP,EUR`,
         {
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json"
-            },
-            method: "GET"
+            method: "GET",
+            credentials: "same-origin"
         }
     );
-    if (!res.ok) {
+    if (!req.ok) {
         throw "request failed";
     }
-    const data = await req.json();
+    return await req.json();
 }
